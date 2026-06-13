@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kádis — Gestão de Produção</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#efefed;
+  --txt:#1c1c1a;--txt2:#72726e;--txt3:#a8a8a4;
+  --border:#e4e4e0;--border2:#c8c8c4;
+  --green:#1D9E75;--gbg:#e1f5ee;--gtxt:#0a6644;
+  --blue:#2563EB;--bbg:#eff6ff;--btxt:#1d4ed8;
+  --amber:#d97706;--abg:#fffbeb;--atxt:#92400e;
+  --red:#dc2626;--rbg:#fef2f2;--rtxt:#991b1b;
+  --r:8px;--r2:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg3);color:var(--txt);font-size:14px;line-height:1.5}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh;max-width:1400px;margin:0 auto}
+.sidebar{width:220px;flex-shrink:0;background:var(--txt);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.content{flex:1;min-width:0;padding:24px;overflow-x:hidden}
+
+/* SIDEBAR */
+.logo{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-k{font-size:16px;font-weight:700;color:#fff;letter-spacing:.01em}
+.logo-s{font-size:11px;color:rgba(255,255,255,.38);margin-top:1px}
+.nav-sec{font-size:10px;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.1em;padding:16px 16px 6px}
+.nav-btn{display:flex;align-items:center;gap:9px;width:100%;padding:8px 16px;background:none;border:none;border-left:2px solid transparent;color:rgba(255,255,255,.5);font-size:13px;cursor:pointer;text-align:left;font-family:inherit;transition:all .12s}
+.nav-btn i{font-size:16px;flex-shrink:0}
+.nav-btn:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.06)}
+.nav-btn.on{color:#fff;background:rgba(255,255,255,.1);border-left-color:#4ade80}
+
+/* PAGE */
+.page{display:none}.page.on{display:block}
+.pg-title{font-size:20px;font-weight:700;color:var(--txt);margin-bottom:20px}
+.pg-sub{font-size:13px;color:var(--txt2);margin-top:4px}
+
+/* CARDS */
+.card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-title{font-size:12px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px}
+
+/* METRIC CARDS */
+.mc-row{display:grid;gap:12px;margin-bottom:16px}
+.mc-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mc-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.mc-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.mc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:16px;box-shadow:var(--shadow)}
+.mc-l{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.mc-v{font-size:24px;font-weight:700;color:var(--txt);line-height:1}
+.mc-s{font-size:11px;color:var(--txt3);margin-top:5px}
+.mc-bar{height:4px;background:var(--bg3);border-radius:2px;margin-top:10px;overflow:hidden}
+.mc-fill{height:100%;border-radius:2px}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;gap:3px}
+.bg{background:var(--gbg);color:var(--gtxt)}
+.bb{background:var(--bbg);color:var(--btxt)}
+.ba{background:var(--abg);color:var(--atxt)}
+.br{background:var(--rbg);color:var(--rtxt)}
+.bn{background:var(--bg2);color:var(--txt2)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg);color:var(--txt);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:all .12s;white-space:nowrap}
+.btn:hover{background:var(--bg2);border-color:var(--txt2)}
+.btn-p{background:var(--txt);color:#fff;border-color:var(--txt)}
+.btn-p:hover{opacity:.85}
+.btn-g{background:var(--green);color:#fff;border-color:var(--green)}
+.btn-g:hover{opacity:.87}
+.btn-sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn-danger{color:var(--red);border-color:#fca5a5}
+.btn-danger:hover{background:var(--rbg)}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}
+
+/* FORMS */
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label,.lbl{font-size:11px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{font-size:13px;padding:8px 10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg);color:var(--txt);width:100%;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.fg textarea{resize:vertical;min-height:70px}
+
+/* VEHICLE CARDS */
+.vc-list{display:flex;flex-direction:column;gap:8px}
+.vc{background:var(--bg);border:1px solid var(--border);border-radius:var(--r2);padding:14px 16px;cursor:pointer;box-shadow:var(--shadow);transition:border-color .12s,box-shadow .12s}
+.vc:hover{border-color:var(--border2);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.vc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.vc-l{flex:1;min-width:0}
+.vc-os{font-size:10px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.vc-placa{font-size:16px;font-weight:700;letter-spacing:.04em;color:var(--txt)}
+.vc-mod{font-size:12px;color:var(--txt2);margin-top:1px}
+.vc-r{display:flex;flex-direction:column;gap:4px;align-items:flex-end;flex-shrink:0}
+.vc-meta{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px}
+.vc-mi{font-size:12px;color:var(--txt2)}
+.vc-mi b{color:var(--txt);font-weight:600}
+.pb{height:3px;background:var(--bg3);border-radius:2px;margin-top:8px;overflow:hidden}
+.pbf{height:100%;border-radius:2px;background:var(--green)}
+.pbf.r{background:var(--red)}
+
+/* FILTER BAR */
+.fbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+.fbar input,.fbar select{font-size:12px;padding:7px 10px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg);color:var(--txt);font-family:inherit}
+.fsearch{flex:1;min-width:160px}
+
+/* PEÇAS CARD — destaque visual */
+.pcs-hero{background:linear-gradient(135deg,var(--txt) 0%,#374151 100%);border-radius:var(--r2);padding:20px;margin-bottom:16px;color:#fff}
+.pcs-hero-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:rgba(255,255,255,.55);margin-bottom:16px}
+.pcs-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.pcs-nv{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);padding:14px;text-align:center}
+.pcs-nv.n1{border-top:3px solid #4ade80}
+.pcs-nv.n2{border-top:3px solid #fbbf24}
+.pcs-nv.n3{border-top:3px solid #f87171}
+.pcs-nv-lbl{font-size:10px;font-weight:600;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.pcs-nv-name{font-size:12px;color:rgba(255,255,255,.8);margin-bottom:10px}
+.pcs-nv-ex{font-size:10px;color:rgba(255,255,255,.4);margin-bottom:10px;line-height:1.5}
+.pcs-inp{width:64px;font-size:18px;font-weight:700;padding:6px 8px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.12);color:#fff;text-align:center;font-family:inherit}
+.pcs-inp:focus{outline:none;border-color:rgba(255,255,255,.5)}
+.pcs-cons{font-size:10px;color:rgba(255,255,255,.4);margin-top:6px;line-height:1.6}
+.pcs-total{display:flex;justify-content:space-between;align-items:center;border-top:1px solid rgba(255,255,255,.1);margin-top:14px;padding-top:14px}
+.pcs-total-lbl{font-size:12px;color:rgba(255,255,255,.6)}
+.pcs-total-val{font-size:20px;font-weight:700;color:#fff}
+
+/* PREV BOX */
+.prev-box{background:var(--bg2);border-radius:var(--r);padding:14px;margin-top:8px;border:1px solid var(--border)}
+.prev-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--border)}
+.prev-row:last-child{border:none;font-weight:700;padding-top:8px;margin-top:4px}
+.prev-lbl{color:var(--txt2)}
+
+/* ÁREA TABLE */
+.at{width:100%;border-collapse:collapse;font-size:12px}
+.at th{font-size:10px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;padding:6px 8px;text-align:left;border-bottom:1px solid var(--border2);background:var(--bg2)}
+.at td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.at tr:last-child td{border-bottom:none}
+.at input[type=datetime-local]{font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--txt);width:160px;font-family:inherit}
+.at input[type=text]{font-size:12px;padding:4px 6px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--txt);width:120px;font-family:inherit}
+.dot{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0}
+.dp{background:var(--green)}.dw{background:var(--amber)}.da{background:var(--blue)}
+.an{display:flex;align-items:center;gap:6px;font-weight:500;min-width:160px}
+.dur{color:var(--txt2);font-size:11px;text-align:right;white-space:nowrap}
+
+/* FAT TABLE */
+.ft{width:100%;border-collapse:collapse;font-size:13px}
+.ft th{font-size:10px;font-weight:600;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border2);background:var(--bg2)}
+.ft td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ft tr:last-child td{border-bottom:none}
+.ft tr:hover td{background:var(--bg2)}
+
+/* PREP */
+.prep-row{display:grid;grid-template-columns:1fr 180px auto;gap:8px;align-items:center;margin-bottom:6px}
+.prep-row input,.prep-row select{font-size:12px;padding:6px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg);color:var(--txt);font-family:inherit;width:100%}
+
+/* RETRABALHO */
+.rt-box{border:1px solid #fca5a5;border-radius:var(--r2);padding:16px;margin-top:14px;background:#fff5f5}
+.rt-title{font-size:12px;font-weight:700;color:var(--rtxt);margin-bottom:12px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.05em}
+
+/* PDF IMPORT */
+.drop{border:2px dashed var(--border2);border-radius:var(--r2);padding:40px 24px;text-align:center;cursor:pointer;background:var(--bg);transition:all .15s}
+.drop:hover,.drop.over{border-color:var(--txt);background:var(--bg2)}
+.drop-ico{font-size:40px;color:var(--txt3);margin-bottom:12px}
+.drop-lbl{font-size:15px;color:var(--txt2);font-weight:500}
+.drop-sub{font-size:12px;color:var(--txt3);margin-top:4px}
+.file-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border-radius:var(--r);margin-top:12px;border:1px solid var(--border)}
+.sb{padding:10px 14px;border-radius:var(--r);font-size:13px;margin-top:12px}
+.sb-ok{background:var(--gbg);color:var(--gtxt)}
+.sb-err{background:var(--rbg);color:var(--rtxt)}
+.sb-load{background:var(--bg2);color:var(--txt2)}
+.log-box{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.li{font-size:12px;padding:5px 10px;border-radius:6px}
+.li-n{background:var(--gbg);color:var(--gtxt)}
+.li-u{background:var(--bbg);color:var(--btxt)}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--txt);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* SEPARADOR */
+.sep{height:1px;background:var(--border);margin:20px 0}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px 16px;color:var(--txt2);font-size:13px}
+.empty i{font-size:32px;display:block;margin-bottom:10px;color:var(--txt3)}
+
+/* META ROWS */
+.meta-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.meta-row:last-child{border:none}
+.meta-lbl{font-size:13px;color:var(--txt)}
+.meta-right{display:flex;align-items:center;gap:12px}
+.prog{width:120px;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.prog-f{height:100%;border-radius:3px}
+
+/* BACKUP */
+.bk2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* RESPONSIVE */
+@media(max-width:800px){
+  .sidebar{display:none}
+  .content{padding:16px}
+  .mc-4,.mc-3{grid-template-columns:1fr 1fr}
+  .pcs-grid,.fg3{grid-template-columns:1fr}
+  .fg2{grid-template-columns:1fr}
+  .bk2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-k">Kádis</div>
+    <div class="logo-s">Centro Automotivo</div>
+  </div>
+  <div class="nav-sec">Produção</div>
+  <button class="nav-btn on" onclick="go('veiculos')"><i class="ti ti-car"></i>Veículos</button>
+  <button class="nav-btn" onclick="go('novo')"><i class="ti ti-plus"></i>Cadastrar</button>
+  <button class="nav-btn" onclick="go('importar')"><i class="ti ti-file-import"></i>Importar PDF</button>
+  <div class="nav-sec">Análise</div>
+  <button class="nav-btn" onclick="go('metas')"><i class="ti ti-target"></i>Metas</button>
+  <button class="nav-btn" onclick="go('financeiro')"><i class="ti ti-coin"></i>Financeiro</button>
+  <button class="nav-btn" onclick="go('dashboard')"><i class="ti ti-chart-bar"></i>Indicadores</button>
+  <div class="nav-sec">Sistema</div>
+  <button class="nav-btn" onclick="go('config')"><i class="ti ti-settings"></i>Configurações</button>
+  <button class="nav-btn" onclick="go('backup')"><i class="ti ti-shield-check"></i>Backup</button>
+</nav>
+
+<!-- CONTENT -->
+<main class="content">
+
+<!-- VEÍCULOS -->
+<div id="pg-veiculos" class="page on">
+  <div class="pg-title">Veículos</div>
+  <div class="fbar">
+    <input class="fsearch" id="busca" placeholder="Buscar por placa, OS ou modelo..." oninput="rl()">
+    <select id="farea" onchange="rl()"><option value="">Todas as áreas</option></select>
+    <select id="fstatus" onchange="rl()">
+      <option value="">Todos</option>
+      <option value="atr">Com atraso</option>
+      <option value="ok">No prazo</option>
+    </select>
+    <button class="btn btn-sm" onclick="xCSV()"><i class="ti ti-download"></i>CSV</button>
+  </div>
+  <div id="lv"></div>
+  <div id="dv" style="display:none"></div>
+</div>
+
+<!-- CADASTRAR -->
+<div id="pg-novo" class="page">
+  <div class="pg-title">Cadastrar veículo</div>
+  <div class="card">
+    <div class="fg2">
+      <div class="fg"><label>OS</label><input id="n-os" placeholder="002XXX"></div>
+      <div class="fg"><label>Placa</label><input id="n-placa" placeholder="ABC-1234" style="text-transform:uppercase"></div>
+      <div class="fg"><label>Modelo</label><input id="n-modelo" placeholder="Creta 2023"></div>
+      <div class="fg"><label>Cor</label><input id="n-cor" placeholder="Branca"></div>
+      <div class="fg"><label>Seguradora</label>
+        <select id="n-seg"><option value="">—</option>
+          <option>Porto Seguro</option><option>Bradesco</option><option>Azul</option>
+          <option>Grand Sport / Hyundai</option><option>Sampa Trianon / Peugeot</option><option>Particular</option><option>Outra</option>
+        </select>
+      </div>
+      <div class="fg"><label>Orçamentista</label>
+        <select id="n-orc"><option value="">—</option><option>Emerson</option><option>Caio</option></select>
+      </div>
+      <div class="fg"><label>Prazo prometido</label><input type="date" id="n-prazo"></div>
+      <div class="fg"><label>Área atual</label><select id="n-area"><option value="">—</option></select></div>
+    </div>
+    <div class="btns">
+      <button class="btn btn-p" onclick="cad()"><i class="ti ti-check"></i>Cadastrar</button>
+      <button class="btn" onclick="limpF()">Limpar</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORTAR -->
+<div id="pg-importar" class="page">
+  <div class="pg-title">Importar PDFs do Databox</div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="background:var(--txt);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">1</span> Programação diária (obrigatório)</div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">PDF com as áreas atuais de cada veículo — o mesmo que você recebe todo dia.</div>
+    <div class="drop" id="dz1" onclick="document.getElementById('pf1').click()" ondragover="dg1(event,1)" ondragleave="dg1(event,0)" ondrop="dp1(event)">
+      <div class="drop-ico" style="font-size:28px"><i class="ti ti-file-type-pdf"></i></div>
+      <div class="drop-lbl" style="font-size:13px">Clique ou arraste o PDF da programação</div>
+    </div>
+    <input type="file" id="pf1" accept="application/pdf" style="display:none" onchange="onF1(this.files[0])">
+    <div id="fc1" style="display:none" class="file-chip">
+      <i class="ti ti-file-type-pdf" style="font-size:18px;color:var(--green)"></i>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600" id="fn1"></div><div style="font-size:11px;color:var(--txt2)" id="fs1"></div></div>
+      <button class="btn btn-sm" onclick="rF1()"><i class="ti ti-x"></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;gap:8px"><span style="background:var(--blue);color:#fff;border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0">2</span> Relatório de valores — RLOSSV (opcional)</div>
+    <div style="font-size:12px;color:var(--txt2);margin-bottom:10px">PDF de fechamento do Databox com Total OS, Total Serviços e Total Peças por OS. Quando enviado junto, os valores são cruzados automaticamente pela OS.</div>
+    <div class="drop" id="dz2" onclick="document.getElementById('pf2').click()" ondragover="dg2(event,1)" ondragleave="dg2(event,0)" ondrop="dp2(event)">
+      <div class="drop-ico" style="font-size:28px"><i class="ti ti-file-type-pdf"></i></div>
+      <div class="drop-lbl" style="font-size:13px">Clique ou arraste o PDF de valores</div>
+      <div class="drop-sub">Opcional — RLOSSV / Relatório de Fechamento</div>
+    </div>
+    <input type="file" id="pf2" accept="application/pdf" style="display:none" onchange="onF2(this.files[0])">
+    <div id="fc2b" style="display:none" class="file-chip">
+      <i class="ti ti-file-type-pdf" style="font-size:18px;color:var(--blue)"></i>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600" id="fn2"></div><div style="font-size:11px;color:var(--txt2)" id="fs2b"></div></div>
+      <button class="btn btn-sm" onclick="rF2()"><i class="ti ti-x"></i></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="is" style="display:none" class="sb sb-load" style="margin-bottom:12px"></div>
+    <div class="btns" style="margin-top:0">
+      <button class="btn btn-p" id="bti" onclick="impPDF()" disabled><i class="ti ti-file-import"></i>Extrair e importar</button>
+      <button class="btn btn-sm" onclick="rAll()">Limpar tudo</button>
+    </div>
+    <div id="il" style="display:none" class="log-box"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Como funciona</div>
+    <div style="font-size:13px;color:var(--txt2);line-height:2.1">
+      <b style="color:var(--txt)">1.</b> Suba o PDF da programação — a IA extrai área, OS, placa, modelo e prazo de cada veículo<br>
+      <b style="color:var(--txt)">2.</b> Se você subir também o RLOSSV, os valores (MO e peças) são cruzados pelo número da OS<br>
+      <b style="color:var(--txt)">3.</b> Veículos novos são criados; existentes têm área e histórico atualizados<br>
+      <b style="color:var(--txt)">4.</b> Valores já lançados manualmente não são sobrescritos — apenas preenchidos se estiverem zerados
+    </div>
+  </div>
+</div>
+
+<!-- METAS -->
+<div id="pg-metas" class="page">
+  <div class="pg-title">Metas<span class="pg-sub" style="font-size:14px;font-weight:400;color:var(--txt2);margin-left:10px" id="mes-ref"></span></div>
+  <div id="mc"></div>
+</div>
+
+<!-- FINANCEIRO -->
+<div id="pg-financeiro" class="page">
+  <div class="pg-title">Financeiro</div>
+  <div id="fc2"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="pg-dashboard" class="page">
+  <div class="pg-title">Indicadores</div>
+  <div id="dc"></div>
+</div>
+
+<!-- CONFIG -->
+<div id="pg-config" class="page">
+  <div class="pg-title">Configurações</div>
+  <div class="card">
+    <div class="card-title">Metas mensais</div>
+    <div class="fg2">
+      <div class="fg"><label>Meta peças pintadas / mês</label><input type="number" id="cfg-meta_pecas" value="120"></div>
+      <div class="fg"><label>Meta veículos faturados / mês</label><input type="number" id="cfg-meta_fat" value="40"></div>
+      <div class="fg"><label>Meta retrabalho máximo (%)</label><input type="number" id="cfg-meta_rt" value="5"></div>
+      <div class="fg"><label>Meta faturamento mensal (R$)</label><input type="number" id="cfg-meta_valor" value="0"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Preço dos materiais (para calcular custo por veículo)</div>
+    <div class="fg3">
+      <div class="fg"><label>Tinta / base (R$/litro)</label><input type="number" id="cfg-ptinta" step="0.01"></div>
+      <div class="fg"><label>Verniz (R$/litro)</label><input type="number" id="cfg-pverniz" step="0.01"></div>
+      <div class="fg"><label>Insumos prep. (R$/litro)</label><input type="number" id="cfg-pprep" step="0.01"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">Consumo médio por nível de peça (ml) — ajuste após 30 dias de histórico</div>
+    <div class="fg3">
+      <div class="fg"><label>N1 Tinta</label><input type="number" id="cfg-n1t" value="120"></div>
+      <div class="fg"><label>N1 Verniz</label><input type="number" id="cfg-n1v" value="160"></div>
+      <div class="fg"><label>N2 Tinta</label><input type="number" id="cfg-n2t" value="200"></div>
+      <div class="fg"><label>N2 Verniz</label><input type="number" id="cfg-n2v" value="250"></div>
+      <div class="fg"><label>N3 Tinta</label><input type="number" id="cfg-n3t" value="300"></div>
+      <div class="fg"><label>N3 Verniz</label><input type="number" id="cfg-n3v" value="380"></div>
+      <div class="fg"><label>Prep. leve</label><input type="number" id="cfg-pl" value="100"></div>
+      <div class="fg"><label>Prep. média</label><input type="number" id="cfg-pm" value="200"></div>
+      <div class="fg"><label>Prep. pesada</label><input type="number" id="cfg-pp" value="320"></div>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn btn-p" onclick="sCfg()"><i class="ti ti-check"></i>Salvar configurações</button>
+  </div>
+  <div id="cfg-ok" style="display:none;font-size:12px;color:var(--gtxt);margin-top:8px;font-weight:600">✓ Configurações salvas</div>
+</div>
+
+<!-- BACKUP -->
+<div id="pg-backup" class="page">
+  <div class="pg-title">Backup e restauração</div>
+  <div class="bk2">
+    <div class="card">
+      <div class="card-title">Exportar backup</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Salva todos os dados em JSON. Recomendado semanalmente e sempre antes de limpar o navegador.</p>
+      <div class="btns" style="margin-top:0">
+        <button class="btn btn-g" onclick="xJSON()"><i class="ti ti-download"></i>Baixar JSON</button>
+        <button class="btn btn-sm" onclick="cpJSON()"><i class="ti ti-copy"></i>Copiar</button>
+      </div>
+      <div id="cp-ok" style="display:none;font-size:12px;color:var(--gtxt);margin-top:8px;font-weight:600">✓ Copiado para área de transferência</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Restaurar backup</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:14px">Cole o JSON de um backup anterior para restaurar os dados.</p>
+      <div class="fg"><textarea id="rt" placeholder="Cole o JSON aqui..."></textarea></div>
+      <div class="btns">
+        <button class="btn" style="color:var(--atxt);border-color:var(--amber)" onclick="rest()"><i class="ti ti-upload"></i>Restaurar</button>
+      </div>
+      <div id="rl2" style="display:none;margin-top:8px;font-size:12px"></div>
+    </div>
+  </div>
+  <div class="card"><div id="si" style="font-size:13px;color:var(--txt2)"></div></div>
+</div>
+
+</main>
+</div>
+
+<script>
+const DK='kadis_v3',CK='kadis_cfg';
+const DC={ptinta:0,pverniz:0,pprep:0,n1t:120,n1v:160,n2t:200,n2v:250,n3t:300,n3v:380,pl:100,pm:200,pp:320,meta_pecas:120,meta_fat:40,meta_rt:5,meta_valor:0};
+const AR=[
+  {id:'aut',n:'Ag. Autorização',t:'a'},
+  {id:'vis_rod',n:'Ag. Vistoria – rodando',t:'w'},
+  {id:'agp_rod',n:'Ag. Peças – rodando',t:'w'},
+  {id:'ag_ent',n:'Ag. Entrada',t:'w'},
+  {id:'desm',n:'Desmontagem',t:'p'},
+  {id:'agp_fis',n:'Ag. Peças – físico',t:'w'},
+  {id:'funi',n:'Funilaria',t:'p'},
+  {id:'prep',n:'Preparação',t:'p'},
+  {id:'pint',n:'Pintura',t:'p'},
+  {id:'poli',n:'Polimento',t:'p'},
+  {id:'mont',n:'Montagem',t:'p'},
+  {id:'serv3',n:'Serviço terceiro',t:'p'},
+  {id:'vpronto',n:'Veículo pronto',t:'a'},
+  {id:'agfat',n:'Ag. Faturamento',t:'a'},
+  {id:'entregue',n:'Entregue',t:'a'},
+];
+
+const ld=()=>JSON.parse(localStorage.getItem(DK)||'[]');
+const sv=d=>localStorage.setItem(DK,JSON.stringify(d));
+const lc=()=>Object.assign({},DC,JSON.parse(localStorage.getItem(CK)||'{}'));
+const sc=c=>localStorage.setItem(CK,JSON.stringify(c));
+const R=v=>Math.round(v*10)/10;
+const BRL=v=>v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const FD=s=>s?new Date(s+'T12:00').toLocaleDateString('pt-BR'):'—';
+const mes=()=>{const n=new Date();return`${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}`;};
+
+function mkV(os,pl,mo,cr,sg,or,pr,ar){
+  const v={id:Date.now()+Math.random(),os,placa:pl.toUpperCase(),modelo:mo,cor:cr,seguradora:sg,orcamentista:or,prazo:pr,areaAtual:ar||'',historico:[],areas:{},mat:{n1:0,n2:0,n3:0,prepPecas:[],obs:'',rt_n1:0,rt_n2:0,rt_n3:0,retrabalho:false,rt_obs:''},fat:{mo:0,pecas:0,faturado:false,datafat:''}};
+  AR.forEach(a=>{v.areas[a.id]={ini:'',fim:'',obs:'',tok:false,pok:false};});
+  return v;
+}
+
+function cm(mat,cfg){
+  if(!mat)return{ti:0,ve:0,pr:0,tot:0,pcs:0,rti:0,rve:0,rtot:0};
+  const ti=(mat.n1||0)*cfg.n1t+(mat.n2||0)*cfg.n2t+(mat.n3||0)*cfg.n3t;
+  const ve=(mat.n1||0)*cfg.n1v+(mat.n2||0)*cfg.n2v+(mat.n3||0)*cfg.n3v;
+  const pm={leve:cfg.pl,media:cfg.pm,pesada:cfg.pp};
+  const pr=(mat.prepPecas||[]).reduce((a,p)=>a+(pm[p.nivel]||0),0);
+  const pcs=(mat.n1||0)+(mat.n2||0)+(mat.n3||0);
+  const rti=(mat.rt_n1||0)*cfg.n1t+(mat.rt_n2||0)*cfg.n2t+(mat.rt_n3||0)*cfg.n3t;
+  const rve=(mat.rt_n1||0)*cfg.n1v+(mat.rt_n2||0)*cfg.n2v+(mat.rt_n3||0)*cfg.n3v;
+  return{ti,ve,pr,tot:ti+ve+pr,pcs,rti,rve,rtot:rti+rve};
+}
+
+function dR(v){if(!v.prazo)return null;const h=new Date();h.setHours(0,0,0,0);return Math.ceil((new Date(v.prazo+'T00:00')-h)/86400000);}
+function pg(v){return Math.round(AR.filter(a=>v.areas[a.id]?.fim).length/AR.length*100);}
+function hrs(a,b){if(!a||!b)return null;const ms=new Date(b)-new Date(a);return ms>0?ms/3600000:null;}
+function fH(h){if(h===null)return'—';if(h<24)return R(h)+'h';return Math.floor(h/24)+'d '+(h%24>0?Math.round(h%24)+'h':'');}
+
+// NAV
+function go(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('on'));
+  document.getElementById('pg-'+p).classList.add('on');
+  document.querySelectorAll('.nav-btn').forEach(x=>{if(x.getAttribute('onclick')===`go('${p}')`)x.classList.add('on');});
+  if(p==='veiculos')rl();
+  if(p==='metas')rM();
+  if(p==='financeiro')rF();
+  if(p==='dashboard')rD();
+  if(p==='config')lCfg();
+  if(p==='backup')rBI();
+}
+
+function popSel(){
+  const na=document.getElementById('n-area');
+  if(na)na.innerHTML='<option value="">—</option>'+AR.map(a=>`<option value="${a.id}">${a.n}</option>`).join('');
+  const fa=document.getElementById('farea');
+  if(fa)fa.innerHTML='<option value="">Todas as áreas</option>'+AR.map(a=>`<option value="${a.id}">${a.n}</option>`).join('');
+}
+
+// LISTA
+function rl(){
+  const todos=ld();
+  const b=(document.getElementById('busca')?.value||'').toLowerCase();
+  const fa=document.getElementById('farea')?.value||'';
+  const fs=document.getElementById('fstatus')?.value||'';
+  const lv=document.getElementById('lv');const dv=document.getElementById('dv');
+  if(!lv)return;
+  dv.style.display='none';lv.style.display='';
+  let vv=todos;
+  if(b)vv=vv.filter(v=>v.placa.toLowerCase().includes(b)||v.os.includes(b)||(v.modelo||'').toLowerCase().includes(b));
+  if(fa)vv=vv.filter(v=>v.areaAtual===fa);
+  if(fs==='atr')vv=vv.filter(v=>{const d=dR(v);return d!==null&&d<0&&!v.areas?.entregue?.fim;});
+  if(fs==='ok')vv=vv.filter(v=>{const d=dR(v);return d!==null&&d>=0;});
+  if(!vv.length){lv.innerHTML='<div class="empty"><i class="ti ti-car"></i>Nenhum veículo encontrado.</div>';return;}
+  lv.innerHTML='<div class="vc-list">'+vv.map(v=>{
+    const d=dR(v);const atr=d!==null&&d<0;const p=pg(v);
+    const area=AR.find(a=>a.id===v.areaAtual);
+    const cfg=lc();const mc=cm(v.mat,cfg);
+    return`<div class="vc" onclick="aD('${v.id}')">
+      <div class="vc-top">
+        <div class="vc-l">
+          <div class="vc-os">OS ${v.os}</div>
+          <div class="vc-placa">${v.placa}</div>
+          <div class="vc-mod">${v.modelo||'—'}${v.cor?' · '+v.cor:''}</div>
+        </div>
+        <div class="vc-r">
+          ${v.seguradora?`<span class="badge bb">${v.seguradora}</span>`:''}
+          ${area?`<span class="badge bn">${area.n}</span>`:''}
+          ${d!==null?`<span class="badge ${atr?'br':'bg'}">${atr?Math.abs(d)+'d atraso':d===0?'Hoje':d+'d'}</span>`:''}
+        </div>
+      </div>
+      <div class="vc-meta">
+        ${v.prazo?`<div class="vc-mi">Prazo <b>${FD(v.prazo)}</b></div>`:''}
+        ${v.orcamentista?`<div class="vc-mi">Orç. <b>${v.orcamentista}</b></div>`:''}
+        ${mc.pcs>0?`<div class="vc-mi">Peças pintadas <b>${mc.pcs}</b> (${v.mat?.n1||0}N1 · ${v.mat?.n2||0}N2 · ${v.mat?.n3||0}N3)</div>`:''}
+        ${(v.fat?.mo||v.fat?.pecas)?`<div class="vc-mi">MO <b>${BRL(v.fat.mo||0)}</b> · Peças <b>${BRL(v.fat.pecas||0)}</b></div>`:''}
+        <div class="vc-mi">Prog. <b>${p}%</b></div>
+      </div>
+      <div class="pb"><div class="pbf${atr?' r':''}" style="width:${p}%"></div></div>
+    </div>`;
+  }).join('')+'</div>';
+}
+
+// DETALHE
+function aD(id){
+  const vv=ld();const v=vv.find(x=>String(x.id)===String(id));if(!v)return;
+  document.getElementById('lv').style.display='none';
+  const dv=document.getElementById('dv');dv.style.display='';
+  const d=dR(v);const atr=d!==null&&d<0;
+  const cfg=lc();const m=v.mat||{n1:0,n2:0,n3:0,prepPecas:[],obs:'',rt_n1:0,rt_n2:0,rt_n3:0,retrabalho:false,rt_obs:''};
+  const f=v.fat||{mo:0,pecas:0,faturado:false,datafat:''};
+  const calc=cm(m,cfg);
+
+  dv.innerHTML=`
+  <div class="btns" style="margin-bottom:12px">
+    <button class="btn btn-sm" onclick="rl()"><i class="ti ti-arrow-left"></i>Voltar</button>
+    <button class="btn btn-sm btn-danger" onclick="excl('${v.id}')"><i class="ti ti-trash"></i>Excluir</button>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div>
+        <div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em">OS ${v.os}</div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:.04em">${v.placa}</div>
+        <div style="font-size:13px;color:var(--txt2)">${v.modelo||'—'}${v.cor?' · '+v.cor:''}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+          ${v.seguradora?`<span class="badge bb">${v.seguradora}</span>`:''}
+          ${v.orcamentista?`<span class="badge bn">${v.orcamentista}</span>`:''}
+          ${d!==null?`<span class="badge ${atr?'br':'bg'}">${atr?Math.abs(d)+'d de atraso':d===0?'Entrega hoje':d+'d restantes'}</span>`:''}
+        </div>
+      </div>
+      <div class="fg" style="min-width:180px">
+        <label>Área atual</label>
+        <select onchange="updAr('${v.id}',this.value)">
+          <option value="">—</option>
+          ${AR.map(a=>`<option value="${a.id}"${v.areaAtual===a.id?' selected':''}>${a.n}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+
+    <!-- PEÇAS — DESTAQUE PRINCIPAL -->
+    <div class="pcs-hero" id="ph-${v.id}">
+      <div class="pcs-hero-title"><i class="ti ti-tool" style="vertical-align:-2px"></i> Peças reparadas — informe a quantidade por tamanho</div>
+      <div class="pcs-grid">
+        <div class="pcs-nv n1">
+          <div class="pcs-nv-lbl">Nível 1</div>
+          <div class="pcs-nv-name">Pequena / Simples</div>
+          <div class="pcs-nv-ex">Paralama · Retrovisor<br>Aplique · Moldura</div>
+          <input type="number" class="pcs-inp" id="n1-${v.id}" value="${m.n1||0}" min="0" oninput="upPrev('${v.id}')">
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px">peças</div>
+          <div class="pcs-cons">Tinta ${cfg.n1t}ml · Verniz ${cfg.n1v}ml</div>
+        </div>
+        <div class="pcs-nv n2">
+          <div class="pcs-nv-lbl">Nível 2</div>
+          <div class="pcs-nv-name">Média / Padrão</div>
+          <div class="pcs-nv-ex">Porta · Tampa traseira<br>Para-choque médio</div>
+          <input type="number" class="pcs-inp" id="n2-${v.id}" value="${m.n2||0}" min="0" oninput="upPrev('${v.id}')">
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px">peças</div>
+          <div class="pcs-cons">Tinta ${cfg.n2t}ml · Verniz ${cfg.n2v}ml</div>
+        </div>
+        <div class="pcs-nv n3">
+          <div class="pcs-nv-lbl">Nível 3</div>
+          <div class="pcs-nv-name">Grande / Complexa</div>
+          <div class="pcs-nv-ex">Capô · Teto<br>Lateral · Para-choque grande</div>
+          <input type="number" class="pcs-inp" id="n3-${v.id}" value="${m.n3||0}" min="0" oninput="upPrev('${v.id}')">
+          <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:3px">peças</div>
+          <div class="pcs-cons">Tinta ${cfg.n3t}ml · Verniz ${cfg.n3v}ml</div>
+        </div>
+      </div>
+      <div class="pcs-total">
+        <div class="pcs-total-lbl">Total de peças pintadas neste veículo</div>
+        <div class="pcs-total-val" id="pcs-tot-${v.id}">${calc.pcs}</div>
+      </div>
+    </div>
+
+    <!-- PREP -->
+    <div style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin:.5rem 0 .625rem">Preparação — intensidade por grupo de peças</div>
+    <div id="pl-${v.id}">
+      ${(m.prepPecas||[]).map((p,i)=>pRow(v.id,i,p)).join('')}
+    </div>
+    <button class="btn btn-sm" onclick="addP('${v.id}')"><i class="ti ti-plus"></i>Adicionar linha</button>
+
+    <!-- CONSUMO PREVISTO -->
+    <div class="prev-box" id="pv-${v.id}">${bPrev(calc,cfg)}</div>
+    <div class="fg" style="margin-top:12px"><label>Obs. sobre material</label><input type="text" id="mo-${v.id}" value="${m.obs||''}" placeholder="Cor especial, exceção, dificuldade..."></div>
+
+    <!-- RETRABALHO -->
+    <div class="rt-box">
+      <div class="rt-title"><i class="ti ti-refresh"></i>Retrabalho</div>
+      <label style="font-size:13px;display:flex;gap:8px;align-items:center;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="rtf-${v.id}" ${m.retrabalho?'checked':''} style="width:16px;height:16px"> Houve retrabalho neste veículo</label>
+      <div class="pcs-grid" style="gap:8px">
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:6px">N1 retrabalho</div>
+          <input type="number" class="pcs-inp" id="rn1-${v.id}" value="${m.rt_n1||0}" min="0" oninput="upPrev('${v.id}')" style="width:64px;font-size:15px;background:var(--rbg);border-color:#fca5a5;color:var(--rtxt)">
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:6px">N2 retrabalho</div>
+          <input type="number" class="pcs-inp" id="rn2-${v.id}" value="${m.rt_n2||0}" min="0" oninput="upPrev('${v.id}')" style="width:64px;font-size:15px;background:var(--rbg);border-color:#fca5a5;color:var(--rtxt)">
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:11px;font-weight:600;color:var(--txt2);margin-bottom:6px">N3 retrabalho</div>
+          <input type="number" class="pcs-inp" id="rn3-${v.id}" value="${m.rt_n3||0}" min="0" oninput="upPrev('${v.id}')" style="width:64px;font-size:15px;background:var(--rbg);border-color:#fca5a5;color:var(--rtxt)">
+        </div>
+      </div>
+      <div class="fg" style="margin-top:10px"><label>Motivo do retrabalho</label><input type="text" id="ro-${v.id}" value="${m.rt_obs||''}" placeholder="Descreva o motivo..."></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- FINANCEIRO -->
+    <div style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Valores da OS</div>
+    <div class="fg2">
+      <div class="fg"><label>Mão de obra — MO (R$)</label><input type="number" id="fmo-${v.id}" value="${f.mo||0}" min="0" step="0.01"></div>
+      <div class="fg"><label>Peças (R$)</label><input type="number" id="fpcs-${v.id}" value="${f.pecas||0}" min="0" step="0.01"></div>
+      <div class="fg"><label>Data de faturamento</label><input type="date" id="fdt-${v.id}" value="${f.datafat||''}"></div>
+      <div class="fg" style="justify-content:flex-end;padding-top:18px"><label style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="fff-${v.id}" ${f.faturado?'checked':''} style="width:16px;height:16px"> Faturado</label></div>
+    </div>
+
+    <div class="sep"></div>
+
+    <!-- LINHA DO TEMPO -->
+    <div style="font-size:12px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Linha do tempo por área</div>
+    <div style="overflow-x:auto">
+    <table class="at">
+      <thead><tr><th>Área</th><th>Início</th><th>Fim</th><th style="text-align:right">Duração</th><th>Tinta / peças</th><th>Obs.</th></tr></thead>
+      <tbody>${AR.map(a=>{
+        const ar=v.areas[a.id]||{};const h=hrs(ar.ini,ar.fim);
+        const dc=a.t==='p'?'dp':a.t==='w'?'dw':'da';
+        return`<tr>
+          <td><div class="an"><span class="dot ${dc}"></span>${a.n}</div></td>
+          <td><input type="datetime-local" id="ii-${v.id}-${a.id}" value="${ar.ini||''}"></td>
+          <td><input type="datetime-local" id="fi-${v.id}-${a.id}" value="${ar.fim||''}"></td>
+          <td class="dur">${fH(h)}</td>
+          <td>${a.id==='pint'?`<label style="font-size:11px;display:flex;gap:4px;align-items:center"><input type="checkbox" id="tok-${v.id}" ${ar.tok?'checked':''}> Tinta OK</label>`:''}
+          ${(a.id==='agp_fis'||a.id==='agp_rod')?`<label style="font-size:11px;display:flex;gap:4px;align-items:center"><input type="checkbox" id="pok-${v.id}-${a.id}" ${ar.pok?'checked':''}> OK</label>`:''}</td>
+          <td><input type="text" id="oi-${v.id}-${a.id}" value="${ar.obs||''}" placeholder="—"></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table>
+    </div>
+
+    <div class="btns">
+      <button class="btn btn-p" id="svbtn-${v.id}" onclick="salv('${v.id}')"><i class="ti ti-check"></i>Salvar tudo</button>
+    </div>
+  </div>`;
+}
+
+function pRow(vid,i,p){
+  return`<div class="prep-row" id="pr-${vid}-${i}">
+    <input type="text" id="pd-${vid}-${i}" value="${p.desc||''}" placeholder="Ex: 2 portas + paralama">
+    <select id="pn-${vid}-${i}" onchange="upPrev('${vid}')">
+      <option value="leve"${p.nivel==='leve'?' selected':''}>Leve — 100ml</option>
+      <option value="media"${p.nivel==='media'?' selected':''}>Média — 200ml</option>
+      <option value="pesada"${p.nivel==='pesada'?' selected':''}>Pesada — 320ml</option>
+    </select>
+    <button class="btn btn-sm btn-danger" onclick="rmP('${vid}',${i})"><i class="ti ti-x"></i></button>
+  </div>`;
+}
+
+function addP(vid){const d=ld();const v=d.find(x=>String(x.id)===String(vid));if(!v)return;if(!v.mat.prepPecas)v.mat.prepPecas=[];v.mat.prepPecas.push({desc:'',nivel:'media'});sv(d);aD(vid);}
+function rmP(vid,i){const d=ld();const v=d.find(x=>String(x.id)===String(vid));if(!v)return;v.mat.prepPecas.splice(i,1);sv(d);aD(vid);}
+
+function bPrev(calc,cfg){
+  const ct=cfg.ptinta?(calc.ti/1000*cfg.ptinta):null;
+  const cv=cfg.pverniz?(calc.ve/1000*cfg.pverniz):null;
+  const cp=cfg.pprep?(calc.pr/1000*cfg.pprep):null;
+  const tr=(ct||0)+(cv||0)+(cp||0);
+  return`<div style="font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Consumo de material previsto</div>
+  <div class="prev-row"><span class="prev-lbl">Tinta / base</span><span>${calc.ti}ml${ct?' · '+BRL(ct):''}</span></div>
+  <div class="prev-row"><span class="prev-lbl">Verniz</span><span>${calc.ve}ml${cv?' · '+BRL(cv):''}</span></div>
+  <div class="prev-row"><span class="prev-lbl">Preparação</span><span>${calc.pr}ml${cp?' · '+BRL(cp):''}</span></div>
+  <div class="prev-row"><span class="prev-lbl">Total</span><span>${calc.tot}ml${tr?' · '+BRL(tr):''}</span></div>
+  ${calc.rtot>0?`<div style="border-top:1px solid #fca5a5;margin-top:6px;padding-top:6px"><div class="prev-row" style="color:var(--rtxt)"><span>Retrabalho adicional</span><span>${calc.rtot}ml</span></div></div>`:''}`;
+}
+
+function upPrev(vid){
+  const cfg=lc();
+  const n1=parseInt(document.getElementById(`n1-${vid}`)?.value)||0;
+  const n2=parseInt(document.getElementById(`n2-${vid}`)?.value)||0;
+  const n3=parseInt(document.getElementById(`n3-${vid}`)?.value)||0;
+  const r1=parseInt(document.getElementById(`rn1-${vid}`)?.value)||0;
+  const r2=parseInt(document.getElementById(`rn2-${vid}`)?.value)||0;
+  const r3=parseInt(document.getElementById(`rn3-${vid}`)?.value)||0;
+  const d=ld();const v=d.find(x=>String(x.id)===String(vid));
+  const m={n1,n2,n3,prepPecas:v?.mat?.prepPecas||[],rt_n1:r1,rt_n2:r2,rt_n3:r3};
+  const calc=cm(m,cfg);
+  const el=document.getElementById(`pv-${vid}`);if(el)el.innerHTML=bPrev(calc,cfg);
+  const tot=document.getElementById(`pcs-tot-${vid}`);if(tot)tot.textContent=n1+n2+n3;
+}
+
+function updAr(id,val){const d=ld();const v=d.find(x=>String(x.id)===String(id));if(!v)return;v.areaAtual=val;sv(d);}
+
+function salv(id){
+  const d=ld();const v=d.find(x=>String(x.id)===String(id));if(!v)return;
+  AR.forEach(a=>{
+    if(!v.areas[a.id])v.areas[a.id]={};
+    const ini=document.getElementById(`ii-${id}-${a.id}`);const fim=document.getElementById(`fi-${id}-${a.id}`);const obs=document.getElementById(`oi-${id}-${a.id}`);
+    if(ini)v.areas[a.id].ini=ini.value;if(fim)v.areas[a.id].fim=fim.value;if(obs)v.areas[a.id].obs=obs.value;
+    const tok=document.getElementById(`tok-${id}`);if(tok)v.areas[a.id].tok=tok.checked;
+    const pok=document.getElementById(`pok-${id}-${a.id}`);if(pok)v.areas[a.id].pok=pok.checked;
+  });
+  if(!v.mat)v.mat={};
+  v.mat.n1=parseInt(document.getElementById(`n1-${id}`)?.value)||0;
+  v.mat.n2=parseInt(document.getElementById(`n2-${id}`)?.value)||0;
+  v.mat.n3=parseInt(document.getElementById(`n3-${id}`)?.value)||0;
+  v.mat.rt_n1=parseInt(document.getElementById(`rn1-${id}`)?.value)||0;
+  v.mat.rt_n2=parseInt(document.getElementById(`rn2-${id}`)?.value)||0;
+  v.mat.rt_n3=parseInt(document.getElementById(`rn3-${id}`)?.value)||0;
+  const rtf=document.getElementById(`rtf-${id}`);if(rtf)v.mat.retrabalho=rtf.checked;
+  const ro=document.getElementById(`ro-${id}`);if(ro)v.mat.rt_obs=ro.value;
+  const moo=document.getElementById(`mo-${id}`);if(moo)v.mat.obs=moo.value;
+  if(!v.fat)v.fat={};
+  const fmo=document.getElementById(`fmo-${id}`);if(fmo)v.fat.mo=parseFloat(fmo.value)||0;
+  const fpc=document.getElementById(`fpcs-${id}`);if(fpc)v.fat.pecas=parseFloat(fpc.value)||0;
+  const fdt=document.getElementById(`fdt-${id}`);if(fdt)v.fat.datafat=fdt.value;
+  const fff=document.getElementById(`fff-${id}`);if(fff)v.fat.faturado=fff.checked;
+  sv(d);
+  const btn=document.getElementById(`svbtn-${id}`);if(btn){btn.innerHTML='<i class="ti ti-check"></i>Salvo!';setTimeout(()=>{btn.innerHTML='<i class="ti ti-check"></i>Salvar tudo';},1500);}
+}
+
+function excl(id){if(!confirm('Excluir veículo?'))return;sv(ld().filter(v=>String(v.id)!==String(id)));rl();}
+
+// CADASTRAR
+function cad(){
+  const os=document.getElementById('n-os').value.trim();const pl=document.getElementById('n-placa').value.trim();
+  if(!os||!pl){alert('OS e placa são obrigatórios.');return;}
+  const d=ld();if(d.find(x=>x.os===os)){alert('OS já cadastrada.');return;}
+  d.unshift(mkV(os,pl,document.getElementById('n-modelo').value.trim(),document.getElementById('n-cor').value.trim(),document.getElementById('n-seg').value,document.getElementById('n-orc').value,document.getElementById('n-prazo').value,document.getElementById('n-area').value));
+  sv(d);limpF();go('veiculos');
+}
+function limpF(){['n-os','n-placa','n-modelo','n-cor','n-prazo'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});['n-seg','n-orc','n-area'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
+
+// PDF DUPLO
+let b64prog=null,b64val=null;
+function toB64(f){return new Promise(r=>{const rd=new FileReader();rd.onload=e=>r(e.target.result.split(',')[1]);rd.readAsDataURL(f);});}
+function sIS(t,m){const e=document.getElementById('is');e.style.display='';e.className='sb sb-'+t;e.innerHTML=m;}
+// PDF 1 — programação
+function dg1(e,o){e.preventDefault();document.getElementById('dz1').classList.toggle('over',!!o);}
+function dp1(e){e.preventDefault();document.getElementById('dz1').classList.remove('over');const f=e.dataTransfer.files[0];if(f?.type==='application/pdf')onF1(f);}
+function onF1(f){if(!f)return;document.getElementById('fn1').textContent=f.name;document.getElementById('fs1').textContent=(f.size/1024).toFixed(0)+' KB';document.getElementById('fc1').style.display='flex';document.getElementById('dz1').style.display='none';document.getElementById('bti').disabled=false;toB64(f).then(b=>{b64prog=b;});}
+function rF1(){b64prog=null;document.getElementById('fc1').style.display='none';document.getElementById('dz1').style.display='';document.getElementById('pf1').value='';document.getElementById('bti').disabled=true;}
+// PDF 2 — valores
+function dg2(e,o){e.preventDefault();document.getElementById('dz2').classList.toggle('over',!!o);}
+function dp2(e){e.preventDefault();document.getElementById('dz2').classList.remove('over');const f=e.dataTransfer.files[0];if(f?.type==='application/pdf')onF2(f);}
+function onF2(f){if(!f)return;document.getElementById('fn2').textContent=f.name;document.getElementById('fs2b').textContent=(f.size/1024).toFixed(0)+' KB';document.getElementById('fc2b').style.display='flex';document.getElementById('dz2').style.display='none';toB64(f).then(b=>{b64val=b;});}
+function rF2(){b64val=null;document.getElementById('fc2b').style.display='none';document.getElementById('dz2').style.display='';document.getElementById('pf2').value='';}
+function rAll(){rF1();rF2();document.getElementById('is').style.display='none';document.getElementById('il').style.display='none';}
+
+async function callAI(docs,prompt){
+  const content=docs.map(d=>({type:'document',source:{type:'base64',media_type:'application/pdf',data:d}}));
+  content.push({type:'text',text:prompt});
+  const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:6000,messages:[{role:'user',content}]})});
+  const data=await res.json();
+  if(data.error)throw new Error(data.error.message);
+  return data.content.map(c=>c.text||'').join('').trim();
+}
+
+function parseJSON(txt){
+  try{return JSON.parse(txt);}catch{const m=txt.match(/\[[\s\S]*\]/);if(!m)throw new Error('Resposta não é JSON válido');return JSON.parse(m[0]);}
+}
+
+async function impPDF(){
+  if(!b64prog){alert('Selecione pelo menos o PDF da programação.');return;}
+  const btn=document.getElementById('bti');
+  btn.disabled=true;btn.innerHTML='<span class="spin"></span>Processando...';
+  document.getElementById('il').style.display='none';
+  const hoje=new Date().toISOString().slice(0,10);
+
+  try{
+    // PASSO 1 — extrair programação
+    sIS('load','<span class="spin"></span> Passo 1/'+( b64val?'2':'1')+': lendo programação...');
+    const pProg=`Extraia TODOS os veículos do PDF de programação da funilaria Kádis. Para cada veículo retorne JSON com: os (número da OS, ex: "002325"), placa (ex: "ERE-6A45"), modelo, cor, seguradora, orcamentista, prazo (YYYY-MM-DD ou ""), area usando EXATAMENTE um destes códigos: aut, vis_rod, agp_rod, ag_ent, desm, agp_fis, funi, prep, pint, poli, mont, serv3, vpronto, agfat, entregue. Mapeamento de seções: AGUARDANDO AUTORIZAÇÃO→aut, AGUARDANDO VISTORIA RODANDO→vis_rod, AGUARDANDO PEÇAS RODANDO→agp_rod, AGUARDANDO ENTRADA / AGUARDANDO ENTRADA OFICINA→ag_ent, DESMONTAGEM→desm, AGUARDANDO PEÇAS (físico/sem rodando)→agp_fis, FUNILARIA→funi, PREPARAÇÃO→prep, PINTURA→pint, POLIMENTO→poli, MONTAGEM→mont, AGUARDANDO FATURAMENTO→agfat. Prefixos de linha: DESM=desm, FUNI=funi, PREP=prep, PINT=pint, POL=poli, MONT=mont, AG.PÇ=agp_rod, ENT=ag_ent, VIST=vis_rod, FAT=agfat, NOVO=aut. Retorne SOMENTE array JSON, sem texto, sem markdown.`;
+    const txtProg=await callAI([b64prog],pProg);
+    const vecs=parseJSON(txtProg);
+
+    // PASSO 2 — extrair valores (se houver)
+    let valMap={};
+    if(b64val){
+      sIS('load','<span class="spin"></span> Passo 2/2: lendo relatório de valores...');
+      const pVal=`Este PDF é o Relatório de Fechamento - Lucro por Ordem de Serviço do Databox. Extraia todas as linhas de OS. Para cada linha retorne JSON com: os (número da OS, ex: "002325"), tot_os (Total O.S. como número), tot_pec (Tot. Pec. como número), tot_ser (Tot. Ser. como número). Se um valor for zero ou vazio, use 0. Retorne SOMENTE array JSON sem texto.`;
+      const txtVal=await callAI([b64val],pVal);
+      const vals=parseJSON(txtVal);
+      vals.forEach(v=>{if(v.os)valMap[v.os.trim()]={tot_os:v.tot_os||0,tot_pec:v.tot_pec||0,tot_ser:v.tot_ser||0};});
+    }
+
+    // PASSO 3 — salvar no banco
+    const db=ld();let nov=0,at=0,vUp=0;const log=[];
+    vecs.forEach(v=>{
+      if(!v.os&&!v.placa)return;
+      const pl=(v.placa||'').toUpperCase().replace(/\s/,'-');
+      const ex=db.find(x=>(v.os&&x.os===String(v.os))||(pl&&x.placa===pl));
+      const val=valMap[String(v.os||'').trim()];
+      if(ex){
+        if(v.area&&ex.areaAtual!==v.area){ex.historico=ex.historico||[];ex.historico.push({area:v.area,data:hoje});ex.areaAtual=v.area;}
+        ['modelo','cor','seguradora','orcamentista'].forEach(k=>{if(v[k]&&!ex[k])ex[k]=v[k];});
+        if(v.prazo&&!ex.prazo)ex.prazo=v.prazo;
+        // cruza valores: preenche MO e peças se zerados
+        if(val){
+          if(!ex.fat)ex.fat={mo:0,pecas:0,faturado:false,datafat:''};
+          if(!ex.fat.mo&&val.tot_ser>0){ex.fat.mo=val.tot_ser;vUp++;}
+          if(!ex.fat.pecas&&val.tot_pec>0){ex.fat.pecas=val.tot_pec;vUp++;}
+        }
+        const an=AR.find(a=>a.id===v.area)?.n||'';
+        const valStr=val?` · MO ${BRL(val.tot_ser)} · Peças ${BRL(val.tot_pec)}`:'';
+        log.push({t:'u',m:`↻ OS ${v.os} · ${pl}${v.area?' → '+an:''}${valStr}`});at++;
+      } else {
+        const nv=mkV(String(v.os||''),pl,v.modelo||'',v.cor||'',v.seguradora||'',v.orcamentista||'',v.prazo||'',v.area||'');
+        if(v.area)nv.historico=[{area:v.area,data:hoje}];
+        if(val){nv.fat.mo=val.tot_ser||0;nv.fat.pecas=val.tot_pec||0;}
+        db.unshift(nv);
+        const an=AR.find(a=>a.id===v.area)?.n||'';
+        const valStr=val?` · MO ${BRL(val.tot_ser)} · Peças ${BRL(val.tot_pec)}`:'';
+        log.push({t:'n',m:`+ OS ${v.os} · ${pl} · ${v.modelo||''}${v.area?' → '+an:''}${valStr}`});nov++;
+      }
+    });
+    sv(db);
+    const resumo=`✓ ${vecs.length} veículo(s) lidos · ${nov} novo(s) · ${at} atualizado(s)${b64val?' · '+Object.keys(valMap).length+' valores cruzados':''}`;
+    sIS('ok',resumo);
+    const il=document.getElementById('il');il.style.display='';
+    il.innerHTML=log.map(l=>`<div class="li ${l.t==='n'?'li-n':'li-u'}">${l.m}</div>`).join('');
+    btn.innerHTML='<i class="ti ti-check"></i>Importado';
+  }catch(e){
+    sIS('err','Erro: '+e.message);
+    btn.disabled=false;btn.innerHTML='<i class="ti ti-file-import"></i>Tentar novamente';
+  }
+}
+
+// METAS
+function rM(){
+  const vv=ld();const cfg=lc();const m=mes();
+  document.getElementById('mes-ref').textContent='— '+new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const fats=vv.filter(v=>v.fat?.faturado&&v.fat?.datafat?.startsWith(m));
+  const nFat=fats.length;
+  const tMO=fats.reduce((a,v)=>a+(v.fat?.mo||0),0);
+  const tPcs=fats.reduce((a,v)=>a+(v.fat?.pecas||0),0);
+  const tFat=tMO+tPcs;
+  const pcsM=vv.filter(v=>v.fat?.datafat?.startsWith(m)).reduce((a,v)=>{const c=cm(v.mat,cfg);return a+c.pcs;},0);
+  const totRT=vv.reduce((a,v)=>{const c=cm(v.mat,cfg);return a+c.rtot;},0);
+  const totMat=vv.reduce((a,v)=>{const c=cm(v.mat,cfg);return a+c.tot;},0);
+  const pRT=totMat>0?(totRT/totMat*100):0;
+  const mF=cfg.meta_fat||40,mP=cfg.meta_pecas||120,mR=cfg.meta_rt||5,mV=cfg.meta_valor||0;
+  const pF=Math.min(120,Math.round(nFat/mF*100));
+  const pP=Math.min(120,Math.round(pcsM/mP*100));
+  const pR=Math.round(pRT/mR*100);
+  const pV=mV>0?Math.min(120,Math.round(tFat/mV*100)):0;
+  const cor=(p,inv)=>inv?(p<=100?'var(--green)':'var(--red)'):(p>=100?'var(--green)':p>=60?'var(--amber)':'var(--red)');
+
+  document.getElementById('mc').innerHTML=`
+  <div class="mc-row mc-4">
+    <div class="mc">
+      <div class="mc-l">Veículos faturados</div>
+      <div class="mc-v">${nFat}<span style="font-size:14px;font-weight:400;color:var(--txt2)"> / ${mF}</span></div>
+      <div class="mc-s">${pF}% da meta</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:${Math.min(100,pF)}%;background:${cor(pF,false)}"></div></div>
+    </div>
+    <div class="mc">
+      <div class="mc-l">Peças pintadas</div>
+      <div class="mc-v">${pcsM}<span style="font-size:14px;font-weight:400;color:var(--txt2)"> / ${mP}</span></div>
+      <div class="mc-s">${pP}% da meta</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:${Math.min(100,pP)}%;background:${cor(pP,false)}"></div></div>
+    </div>
+    <div class="mc">
+      <div class="mc-l">Retrabalho</div>
+      <div class="mc-v">${pRT.toFixed(1)}<span style="font-size:14px;font-weight:400;color:var(--txt2)">% / ≤${mR}%</span></div>
+      <div class="mc-s">${pRT<=mR?'✓ Dentro da meta':'⚠ Acima da meta'}</div>
+      <div class="mc-bar"><div class="mc-fill" style="width:${Math.min(100,pR)}%;background:${cor(pR,true)}"></div></div>
+    </div>
+    <div class="mc">
+      <div class="mc-l">Faturamento MO+Peças</div>
+      <div class="mc-v" style="font-size:17px">${BRL(tFat)}</div>
+      <div class="mc-s">${mV>0?BRL(mV)+' meta · '+pV+'%':'Defina meta em Configurações'}</div>
+      ${mV>0?`<div class="mc-bar"><div class="mc-fill" style="width:${Math.min(100,pV)}%;background:${cor(pV,false)}"></div></div>`:''}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Faturamento do mês</div>
+    <div class="meta-row"><div class="meta-lbl">Mão de obra</div><div class="meta-right"><b>${BRL(tMO)}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Peças</div><div class="meta-right"><b>${BRL(tPcs)}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Total faturado</div><div class="meta-right"><b style="font-size:16px">${BRL(tFat)}</b></div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Posição da carteira</div>
+    <div class="meta-row"><div class="meta-lbl">Total de veículos</div><div class="meta-right"><b>${vv.length}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Em produção</div><div class="meta-right"><b>${vv.filter(v=>['desm','funi','prep','pint','poli','mont','serv3'].includes(v.areaAtual)).length}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Ag. Faturamento</div><div class="meta-right"><b style="color:var(--amber)">${vv.filter(v=>v.areaAtual==='agfat').length}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Ag. Peças</div><div class="meta-right"><b style="color:var(--amber)">${vv.filter(v=>['agp_rod','agp_fis'].includes(v.areaAtual)).length}</b></div></div>
+    <div class="meta-row"><div class="meta-lbl">Com atraso</div><div class="meta-right"><b style="color:var(--red)">${vv.filter(v=>{const d=dR(v);return d!==null&&d<0&&!v.areas?.entregue?.fim;}).length}</b></div></div>
+  </div>`;
+}
+
+// FINANCEIRO
+function rF(){
+  const vv=ld();
+  const aF=vv.filter(v=>v.areaAtual==='agfat'||(v.fat?.mo||v.fat?.pecas)&&!v.fat?.faturado);
+  const fat=vv.filter(v=>v.fat?.faturado);
+  const tAF=aF.reduce((a,v)=>(v.fat?.mo||0)+(v.fat?.pecas||0)+a,0);
+  const tFat=fat.reduce((a,v)=>(v.fat?.mo||0)+(v.fat?.pecas||0)+a,0);
+  document.getElementById('fc2').innerHTML=`
+  <div class="mc-row mc-3">
+    <div class="mc"><div class="mc-l">A faturar</div><div class="mc-v" style="font-size:18px;color:var(--amber)">${BRL(tAF)}</div><div class="mc-s">${aF.length} veículos</div></div>
+    <div class="mc"><div class="mc-l">Faturado (histórico)</div><div class="mc-v" style="font-size:18px;color:var(--green)">${BRL(tFat)}</div><div class="mc-s">${fat.length} veículos</div></div>
+    <div class="mc"><div class="mc-l">Total carteira</div><div class="mc-v" style="font-size:18px">${BRL(tAF+tFat)}</div><div class="mc-s">${vv.filter(v=>v.fat?.mo||v.fat?.pecas).length} com valor</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Ag. faturamento — a receber</div>
+    ${aF.length?`<table class="ft"><thead><tr><th>Veículo</th><th>MO</th><th>Peças</th><th>Total</th><th>Prazo</th></tr></thead><tbody>
+    ${aF.map(v=>{const d=dR(v);const atr=d!==null&&d<0;return`<tr>
+      <td><div style="font-weight:700">${v.placa}</div><div style="font-size:11px;color:var(--txt2)">${v.modelo||''} · OS ${v.os}</div></td>
+      <td>${BRL(v.fat?.mo||0)}</td><td>${BRL(v.fat?.pecas||0)}</td>
+      <td style="font-weight:700">${BRL((v.fat?.mo||0)+(v.fat?.pecas||0))}</td>
+      <td>${d!==null?`<span class="badge ${atr?'br':'bg'}">${atr?Math.abs(d)+'d atr':d===0?'Hoje':d+'d'}</span>`:'<span class="badge bn">—</span>'}</td>
+    </tr>`}).join('')}</tbody></table>`:'<div class="empty" style="padding:24px 0">Nenhum veículo com valor lançado aguardando faturamento.</div>'}
+  </div>
+  <div class="card">
+    <div class="card-title">Histórico — faturados</div>
+    ${fat.length?`<table class="ft"><thead><tr><th>Veículo</th><th>MO</th><th>Peças</th><th>Total</th><th>Faturado em</th></tr></thead><tbody>
+    ${fat.slice(0,30).map(v=>`<tr>
+      <td><div style="font-weight:700">${v.placa}</div><div style="font-size:11px;color:var(--txt2)">${v.modelo||''} · OS ${v.os}</div></td>
+      <td>${BRL(v.fat?.mo||0)}</td><td>${BRL(v.fat?.pecas||0)}</td>
+      <td style="font-weight:700">${BRL((v.fat?.mo||0)+(v.fat?.pecas||0))}</td>
+      <td style="font-size:12px;color:var(--txt2)">${FD(v.fat?.datafat)}</td>
+    </tr>`).join('')}</tbody></table>`:'<div class="empty" style="padding:24px 0">Nenhum faturado ainda.</div>'}
+  </div>`;
+}
+
+// DASHBOARD
+function rD(){
+  const vv=ld();const cfg=lc();const el=document.getElementById('dc');
+  if(!vv.length){el.innerHTML='<div class="empty"><i class="ti ti-chart-bar"></i>Sem dados ainda.</div>';return;}
+  const tot=vv.length,ent=vv.filter(x=>x.areas?.entregue?.fim).length;
+  const atr=vv.filter(x=>{const d=dR(x);return d!==null&&d<0&&!x.areas?.entregue?.fim;}).length;
+  const ts=vv.filter(x=>x.areas?.aut?.ini&&x.areas?.entregue?.fim).map(x=>hrs(x.areas.aut.ini,x.areas.entregue.fim)/24).filter(Boolean);
+  const tm=ts.length?(ts.reduce((a,b)=>a+b,0)/ts.length).toFixed(1):null;
+  let tT=0,tV=0,tP=0,tRT=0,cM=0,rV=0;
+  vv.forEach(v=>{const c=cm(v.mat,cfg);if(c.tot>0){tT+=c.ti;tV+=c.ve;tP+=c.pr;cM++;}if(c.rtot>0)tRT+=c.rtot;if(v.mat?.retrabalho)rV++;});
+  const tM=tT+tV+tP;const pRT=tM>0?(tRT/tM*100).toFixed(1):null;
+  const tPA={};AR.forEach(a=>{const hs=vv.map(x=>hrs(x.areas[a.id]?.ini,x.areas[a.id]?.fim)).filter(h=>h!==null&&h>0);if(hs.length)tPA[a.id]={n:a.n,m:hs.reduce((x,y)=>x+y,0)/hs.length,c:hs.length};});
+  const ord=Object.values(tPA).sort((a,b)=>b.m-a.m).slice(0,10);
+  el.innerHTML=`
+  <div class="mc-row mc-4">
+    <div class="mc"><div class="mc-l">Total</div><div class="mc-v">${tot}</div></div>
+    <div class="mc"><div class="mc-l">Entregues</div><div class="mc-v">${ent}</div></div>
+    <div class="mc"><div class="mc-l">Com atraso</div><div class="mc-v" style="color:var(--red)">${atr}</div></div>
+    <div class="mc"><div class="mc-l">Tempo médio</div><div class="mc-v">${tm?tm+'d':'—'}</div></div>
+  </div>
+  ${cM>0?`<div class="card"><div class="card-title">Material acumulado (${cM} veíc. com dados)</div>
+  <div class="mc-row mc-4">
+    <div class="mc"><div class="mc-l">Tinta</div><div class="mc-v">${(tT/1000).toFixed(2)}L</div></div>
+    <div class="mc"><div class="mc-l">Verniz</div><div class="mc-v">${(tV/1000).toFixed(2)}L</div></div>
+    <div class="mc"><div class="mc-l">Preparação</div><div class="mc-v">${(tP/1000).toFixed(2)}L</div></div>
+    <div class="mc"><div class="mc-l">Retrabalho</div><div class="mc-v" style="${tRT>0?'color:var(--red)':''}">${(tRT/1000).toFixed(2)}L</div></div>
+  </div>
+  <div style="font-size:12px;color:var(--txt2)">${(tM/cM).toFixed(0)}ml/veículo em média${pRT?' · Retrabalho '+pRT+'% do total':''}${rV?' · '+rV+' veíc. com retrabalho':''}</div>
+  </div>`:''}
+  <div class="card"><div class="card-title">Tempo médio por área</div>
+  ${ord.length?ord.map(a=>{const d=a.m/24;const p=Math.min(100,(d/14)*100);const c=d>3?'var(--red)':d>1.5?'var(--amber)':'var(--green)';
+    return`<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${a.n}</span><span style="color:var(--txt2)">${d.toFixed(1)}d · ${a.c} veíc.</span></div><div style="height:5px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;border-radius:2px;background:${c};width:${p}%"></div></div></div>`;
+  }).join(''):'<div style="font-size:13px;color:var(--txt2)">Registre início e fim nas áreas para gerar dados.</div>'}
+  </div>`;
+}
+
+// CONFIG
+function lCfg(){const c=lc();Object.keys(DC).forEach(k=>{const e=document.getElementById('cfg-'+k.replace('_','-'));if(e)e.value=c[k]||DC[k]||0;});}
+function sCfg(){const c={};Object.keys(DC).forEach(k=>{const e=document.getElementById('cfg-'+k.replace('_','-'));c[k]=parseFloat(e?.value)||0;});sc(c);const ok=document.getElementById('cfg-ok');ok.style.display='';setTimeout(()=>ok.style.display='none',2000);}
+
+// BACKUP
+function xJSON(){const d=ld();const blob=new Blob([JSON.stringify({v:3,exp:new Date().toISOString(),d},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`kadis_backup_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);}
+function cpJSON(){navigator.clipboard.writeText(JSON.stringify({v:3,exp:new Date().toISOString(),d:ld()})).then(()=>{const ok=document.getElementById('cp-ok');ok.style.display='';setTimeout(()=>ok.style.display='none',2500);});}
+function rest(){const txt=document.getElementById('rt').value.trim();const log=document.getElementById('rl2');try{const p=JSON.parse(txt);const d=p.d||p.dados||p;if(!Array.isArray(d))throw new Error('Formato inválido');if(!confirm(`Restaurar ${d.length} veículo(s)?`))return;sv(d);log.style.display='';log.style.color='var(--gtxt)';log.textContent=`✓ ${d.length} veículo(s) restaurados.`;rBI();}catch(e){log.style.display='';log.style.color='var(--rtxt)';log.textContent='Erro: '+e.message;}}
+function rBI(){const d=ld();const kb=(new TextEncoder().encode(localStorage.getItem(DK)||'').length/1024).toFixed(1);document.getElementById('si').innerHTML=`<b>${d.length}</b> veículo(s) armazenados · <b>${kb} KB</b> usados<br><span style="font-size:12px;color:var(--txt3)">Exporte o backup antes de limpar o navegador ou trocar de dispositivo.</span>`;}
+
+// CSV
+function xCSV(){
+  const d=ld();const cfg=lc();if(!d.length){alert('Sem dados.');return;}
+  let csv='OS,Placa,Modelo,Cor,Seguradora,Orçamentista,Prazo,Área atual,MO,Peças,Faturado,Data fat.,N1,N2,N3,Tinta ml,Verniz ml,Prep ml,Total ml,Retrabalho,RT ml\n';
+  d.forEach(v=>{const c=cm(v.mat,cfg);const f=v.fat||{};
+    let r=`"${v.os}","${v.placa}","${v.modelo||''}","${v.cor||''}","${v.seguradora||''}","${v.orcamentista||''}","${v.prazo||''}","${AR.find(a=>a.id===v.areaAtual)?.n||''}","${f.mo||0}","${f.pecas||0}","${f.faturado?'Sim':'Não'}","${f.datafat||''}","${v.mat?.n1||0}","${v.mat?.n2||0}","${v.mat?.n3||0}","${c.ti}","${c.ve}","${c.pr}","${c.tot}","${v.mat?.retrabalho?'Sim':'Não'}","${c.rtot}"`;
+    csv+=r+'\n';});
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`kadis_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);
+}
+
+// INIT
+popSel();rl();
+</script>
+</body>
+</html>
